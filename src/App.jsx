@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import JobHuntBanner from './components/JobHuntBanner';
 import TopBar from './components/TopBar';
 import Navbar from './components/Navbar';
 import MissionBanner from './components/MissionBanner';
@@ -14,6 +15,7 @@ import Success from './pages/Success';
 const LandingPage = () => {
   return (
     <>
+      <JobHuntBanner />
       <TopBar />
       <Navbar />
       <MissionBanner />

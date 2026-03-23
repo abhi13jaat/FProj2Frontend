@@ -1,98 +1,28 @@
-import React, { useState } from 'react';
-import { PayPalButtons } from '@paypal/react-paypal-js';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 
 const BuyButton = ({ tier, priceLabel }) => {
-  const [showPaypal, setShowPaypal] = useState(false);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const navigate = useNavigate();
-
-  const handleCreateOrder = async () => {
-    if (!name || !email) {
-      alert("Please provide your name and email before checking out.");
-      return null;
+  const handleClick = () => {
+    const select = document.getElementById('tierInterest');
+    if (select) {
+      // Small trick to fire React onChange for the select element
+      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLSelectElement.prototype, "value").set;
+      nativeInputValueSetter.call(select, tier);
+      const event = new Event('change', { bubbles: true });
+      select.dispatchEvent(event);
     }
-    try {
-      const res = await fetch('http://localhost:3000/api/payments/create-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tier })
-      });
-      const data = await res.json();
-      return data.id; // Return order ID to PayPal
-    } catch (err) {
-      console.error(err);
-      return null;
+    const waitlistSection = document.getElementById('waitlist');
+    if (waitlistSection) {
+      waitlistSection.scrollIntoView({ behavior: 'smooth' });
     }
   };
-
-  const handleApprove = async (data, actions) => {
-    try {
-      const res = await fetch('http://localhost:3000/api/payments/capture-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          orderID: data.orderID,
-          name: name,
-          email: email,
-          tier: tier
-        })
-      });
-      const captureData = await res.json();
-      if (res.ok) {
-        // Redirection on payment success
-        navigate('/success', { state: { orderId: captureData.id } });
-      } else {
-        alert("Payment failed: " + captureData.error);
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Error capturing payment.");
-    }
-  };
-
-  if (!showPaypal) {
-    return (
-      <button 
-        className={tier === 'champion' ? "tier-btn tbtn-featured" : "tier-btn tbtn-default"} 
-        onClick={() => setShowPaypal(true)}
-      >
-        Back This Tier — ${priceLabel}
-      </button>
-    );
-  }
 
   return (
-    <div style={{ marginTop: '1.5rem', textAlign: 'left' }}>
-      <div style={{ marginBottom: '10px' }}>
-        <input 
-          type="text" 
-          placeholder="Name" 
-          value={name} 
-          onChange={e => setName(e.target.value)} 
-          style={{ width: '100%', padding: '8px', borderRadius: '4px', marginBottom: '8px', background: 'var(--surface2)', color: 'var(--text)', border: '1px solid var(--border)' }}
-        />
-        <input 
-          type="email" 
-          placeholder="Email" 
-          value={email} 
-          onChange={e => setEmail(e.target.value)} 
-          style={{ width: '100%', padding: '8px', borderRadius: '4px', background: 'var(--surface2)', color: 'var(--text)', border: '1px solid var(--border)' }}
-        />
-      </div>
-      {(name && email) ? (
-        <PayPalButtons 
-          createOrder={handleCreateOrder}
-          onApprove={handleApprove}
-          style={{ layout: "vertical", color: "blue", shape: "pill", label: "pay" }}
-        />
-      ) : (
-        <div style={{ fontSize: '13px', color: 'var(--amber)', textAlign: 'center' }}>
-          Please enter Name and Email to proceed
-        </div>
-      )}
-    </div>
+    <button 
+      className={tier === 'champion' ? "tier-btn tbtn-featured" : "tier-btn tbtn-default"} 
+      onClick={handleClick}
+    >
+      Back This Tier — ${priceLabel}
+    </button>
   );
 };
 

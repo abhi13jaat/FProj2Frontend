@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { PayPalButtons } from '@paypal/react-paypal-js';
 
 const Waitlist = () => {
+  const API = import.meta.env.VITE_API_URL || 'http://localhost:3000';
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -41,7 +42,7 @@ const Waitlist = () => {
 
   const handleCreateOrder = async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/payments/create-order', {
+      const res = await fetch(`${API}/api/payments/create-order`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tier: formData.tierInterest })
@@ -70,7 +71,7 @@ const Waitlist = () => {
     };
 
     try {
-      const res = await fetch('http://localhost:3000/api/waitlist/capture', {
+      const res = await fetch(`${API}/api/waitlist/capture`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

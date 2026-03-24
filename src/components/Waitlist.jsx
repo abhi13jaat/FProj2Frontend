@@ -16,6 +16,7 @@ const Waitlist = () => {
     }
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCreatingOrder, setIsCreatingOrder] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [showPaypal, setShowPaypal] = useState(false);
 
@@ -41,6 +42,7 @@ const Waitlist = () => {
   };
 
   const handleCreateOrder = async () => {
+    setIsCreatingOrder(true);
     try {
       const res = await fetch(`${API}/api/payments/create-order`, {
         method: 'POST',
@@ -48,10 +50,18 @@ const Waitlist = () => {
         body: JSON.stringify({ tier: formData.tierInterest })
       });
       const data = await res.json();
-      return data.id;
+      
+      if (!res.ok) {
+        throw new Error(data.error || data.details || 'Failed to create PayPal order');
+      }
+      
+      return data.id; // Correct order ID returning for PayPal script hook
     } catch (err) {
-      console.error(err);
-      return null;
+      console.error("Order creation error:", err);
+      // We explicitly throw this error so the PayPal SDK's built-in error handler triggers, avoiding the "Expected an order id" issue.
+      throw err;
+    } finally {
+      setIsCreatingOrder(false);
     }
   };
 
@@ -191,15 +201,33 @@ const Waitlist = () => {
                   {isSubmitting ? 'Submitting...' : 'Secure My Spot & Claim Free Bonuses'}
                 </button>
               ) : (
-                <div style={{ marginTop: '1.5rem' }}>
-                  <PayPalButtons 
-                    createOrder={handleCreateOrder}
-                    onApprove={handleApprove}
-                    style={{ layout: "vertical", color: "blue", shape: "pill", label: "checkout" }}
-                  />
+                <div style={{ marginTop: '1.5rem', position: 'relative' }}>
+                  {(isCreatingOrder || isSubmitting) && (
+                    <div style={{ marginBottom: '10px', textAlign: 'center', color: 'var(--amber)', fontSize: '0.9rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                      <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ animation: 'spin 1s linear infinite' }}>
+                        <circle cx="12" cy="12" r="10" strokeOpacity="0.25"></circle>
+                        <path d="M12 2a10 10 0 0 1 10 10" stroke="#fff" strokeLinecap="round"></path>
+                      </svg>
+                      {isCreatingOrder ? 'Initializing secure payment...' : 'Processing your payment...'}
+                    </div>
+                  )}
+                  
+                  <div style={{ opacity: (isCreatingOrder || isSubmitting) ? 0.6 : 1, pointerEvents: (isCreatingOrder || isSubmitting) ? 'none' : 'auto', transition: 'opacity 0.2s' }}>
+                    <PayPalButtons 
+                      createOrder={handleCreateOrder}
+                      onApprove={handleApprove}
+                      onError={(err) => {
+                        console.error('PayPal Workflow Error:', err);
+                        alert('Payment initialization failed. This could be due to a network error or missing server setup.');
+                      }}
+                      style={{ layout: "vertical", color: "blue", shape: "pill", label: "checkout" }}
+                    />
+                  </div>
+                  
                   <button 
                     style={{ background: 'transparent', color: 'var(--text-muted)', border: 'none', cursor: 'pointer', fontSize: '13px', display: 'block', margin: '15px auto 0', textDecoration: 'underline' }}
                     onClick={() => setShowPaypal(false)}
+                    disabled={isCreatingOrder || isSubmitting}
                   >
                     Change my details
                   </button>

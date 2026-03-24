@@ -5,7 +5,7 @@ import './index.css';
 import { PayPalScriptProvider } from '@paypal/react-paypal-js';
 
 const initialOptions = {
-    "client-id": "AQCBrFyBS_7azBt9hCwGUuZ8cIGMVkFY26_dwG-zXn-EaeGUlhTzxZ2KpUeQYstfzyHAP95rM0u29mwt", 
+    "client-id": "AWUoKIvhlTSMS5epTCSt4AgBGKVNmrMjU36xsVIH6y4ZkLh4ZOborLRq3-ctQRMUBN7cx0crrEndbo7i", 
     currency: "USD",
     intent: "capture",
 };

@@ -31,7 +31,7 @@ const LandingPage = () => {
       
       <footer>
         <p>© 2025 MasterFuture Training — Reward-Based Crowdfunding Campaign<br/>
-        Built with purpose. Powered by <span>AI</span>. Backed by a community of future-forward learners.</p>
+        Built with purpose . Powered by <span>AI</span>. Backed by a community of future-forward learners.</p>
         <p className="footer-goal">🎯 Crowdfunding Target: $5,000 USD — Support the Best-In-Tech Mentor for Mutual Career &amp; Financial Growth</p>
         <p className="footer-tagline">✅ Full Time Support · Weekly Live Meetings · DFY Implementation · Early Enrolled Stars Get Priority Access</p>
       </footer>
